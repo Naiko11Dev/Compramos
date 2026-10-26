@@ -7,7 +7,7 @@ loom {
 	splitEnvironmentSourceSets()
 
 	mods {
-		"compramos" {
+		"compramos-by-naiko11" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}

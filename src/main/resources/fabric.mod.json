@@ -1,9 +1,9 @@
 {
 	"schemaVersion": 1,
-	"id": "compramos",
+	"id": "compramos-by-naiko11",
 	"version": "${version}",
-	"name": "Compramos",
-	"description": "Ein Minecraft-Mod rund um das Compramos-Meme.",
+	"name": "Compramos by Naiko11",
+	"description": "A Minecraft mod centered around the Compramos meme.",
 	"environment": "*",
 	"entrypoints": {
 		"main": [

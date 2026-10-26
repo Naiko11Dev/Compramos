@@ -1,0 +1,18 @@
+{
+	"full_compramos": {
+		"sounds": [
+			{
+				"name": "compramos-by-naiko11:full_compramos",
+				"stream": true
+			}
+		]
+	},
+	"simple_compramos": {
+		"sounds": [
+			{
+				"name": "compramos-by-naiko11:simple_compramos",
+				"stream": true
+			}
+		]
+	}
+}
