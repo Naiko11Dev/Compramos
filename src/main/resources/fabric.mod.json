@@ -11,6 +11,9 @@
 		],
 		"client": [
 			"de.compramos.client.CompramosClient"
+		],
+		"modmenu": [
+			"de.compramos.client.CompramosModMenu"
 		]
 	},
 	"depends": {
@@ -18,5 +21,8 @@
 		"minecraft": "~26.3",
 		"java": ">=25",
 		"fabric-api": "*"
+	},
+	"suggests": {
+		"modmenu": ">=22.0.0-alpha.2"
 	}
 }

@@ -14,5 +14,21 @@
 				"stream": true
 			}
 		]
+	},
+	"montoya_por_favor": {
+		"sounds": [
+			{
+				"name": "compramos-by-naiko11:montoya_por_favor",
+				"stream": true
+			}
+		]
+	},
+	"terreneitor": {
+		"sounds": [
+			{
+				"name": "compramos-by-naiko11:terreneitor",
+				"stream": true
+			}
+		]
 	}
 }

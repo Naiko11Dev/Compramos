@@ -19,7 +19,11 @@ public final class CompramosClient implements ClientModInitializer {
 								.then(literal("full").executes(context ->
 										playSound(context.getSource(), CompramosSounds.FULL_COMPRAMOS, "full")))
 								.then(literal("simple").executes(context ->
-										playSound(context.getSource(), CompramosSounds.SIMPLE_COMPRAMOS, "simple"))))));
+										playSound(context.getSource(), CompramosSounds.SIMPLE_COMPRAMOS, "simple")))
+								.then(literal("montoya").executes(context ->
+										playSound(context.getSource(), CompramosSounds.MONTOYA_POR_FAVOR, "Montoya")))
+								.then(literal("terreneitor").executes(context ->
+										playSound(context.getSource(), CompramosSounds.TERRENEITOR, "Terreneitor"))))));
 
 		CompramosMod.LOGGER.info("Initializing Compramos client.");
 	}

@@ -9,6 +9,8 @@ import net.minecraft.sounds.SoundEvent;
 public final class CompramosSounds {
 	public static final SoundEvent FULL_COMPRAMOS = create("full_compramos");
 	public static final SoundEvent SIMPLE_COMPRAMOS = create("simple_compramos");
+	public static final SoundEvent MONTOYA_POR_FAVOR = create("montoya_por_favor");
+	public static final SoundEvent TERRENEITOR = create("terreneitor");
 
 	private CompramosSounds() {
 	}

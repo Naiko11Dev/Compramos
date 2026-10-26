@@ -41,15 +41,36 @@ the Minecraft client for development.
 
 ## Sound files
 
-The full and simple Compramos sounds are registered as Minecraft sound events.
-Run the client and enter `/compramos test full` or `/compramos test simple` to
-test them. While a Wandering Trader is loaded in the world, it randomly chooses
-one of the two sounds about every 60 to 120 seconds.
+The Compramos sounds are registered as Minecraft sound events. Test them with
+`/compramos test full`, `/compramos test simple`, `/compramos test montoya`, or
+`/compramos test terreneitor`. While a Wandering Trader is loaded in the world,
+it randomly chooses one of the original two sounds about every 60 to 120 seconds.
 
-Minecraft sound assets use OGG Vorbis. Place the converted files at
-`src/main/resources/assets/compramos-by-naiko11/sounds/full_compramos.ogg` and
-`src/main/resources/assets/compramos-by-naiko11/sounds/simple_compramos.ogg`;
-the original MP3 files can remain in `src/main/resources/assets/compramos/`.
+The Montoya sound plays when a Wandering Trader despawns. The Terreneitor sound
+plays when a player mounts a donkey.
+
+As a separate cave ambience feature, players in dark underground areas can also
+hear one of the sounds randomly about once every two hours. These quiet ambient
+sounds are sent only to the player who triggered them and are accompanied by a
+brief, subtle burst of enchantment particles around that player.
+
+## Settings
+
+Install Mod Menu to open Compramos' settings from its entry in the Mods menu.
+The settings let you toggle Wandering Trader sounds and cave ambience, choose
+their frequency, enable the Montoya and Terreneitor event sounds, and toggle the
+cave particles. The screen saves changes immediately to
+`config/compramos-by-naiko11.json`.
+
+In singleplayer, the integrated server uses the same settings. On a dedicated
+server, change the settings in the server's
+`config/compramos-by-naiko11.json` and restart it; a player's local settings
+screen does not change a remote server's configuration. Install Mod Menu on
+the client to access the settings screen.
+
+Minecraft sound assets use OGG Vorbis. The source audio files are kept in
+`src/main/resources/assets/compramos/`; registered OGG sound assets are stored
+in `src/main/resources/assets/compramos-by-naiko11/sounds/`.
 
 ## Install on a server
 
@@ -63,10 +84,11 @@ Java 25 or newer and Fabric API on both the server and each player's client.
    .\gradlew.bat build
    ```
 
-3. Upload `build/libs/compramos-by-naiko11-0.1.0.jar` and a matching Fabric API
+3. Upload `build/libs/compramos-by-naiko11-0.2.0.jar` and a matching Fabric API
    JAR to the server's `mods` folder. Create the folder if it does not exist.
 4. Install the Compramos mod and Fabric API in each player's client `mods`
-   folder too, so clients have the sound assets.
+   folder too, so clients have the sound assets. Install Mod Menu on clients if
+   they want to open the settings screen.
 5. Start the server and connect with clients running the same Minecraft version.
 
 The Wandering Trader plays sounds through the server, which sends them to nearby

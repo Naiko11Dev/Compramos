@@ -3,6 +3,15 @@ package de.compramos;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.equine.Donkey;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader;
 import org.slf4j.Logger;
@@ -19,10 +28,17 @@ public final class CompramosMod implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	private static final int MIN_SOUND_INTERVAL_TICKS = 1_200;
 	private static final int SOUND_INTERVAL_VARIATION_TICKS = 1_201;
+	private static final int MIN_CAVE_SOUND_INTERVAL_TICKS = 108_000;
+	private static final int CAVE_SOUND_INTERVAL_VARIATION_TICKS = 72_001;
+	private static final int CAVE_CHECK_RETRY_TICKS = 600;
+	private static final int CAVE_CHECK_RETRY_VARIATION_TICKS = 601;
 	private static final Map<UUID, Long> NEXT_TRADER_SOUND_TICKS = new HashMap<>();
+	private static final Map<UUID, Long> NEXT_CAVE_SOUND_TICKS = new HashMap<>();
+	private static final Map<UUID, UUID> LAST_DONKEY_MOUNTS = new HashMap<>();
 
 	@Override
 	public void onInitialize() {
+		CompramosConfig.load();
 		CompramosSounds.register();
 		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 			if (entity instanceof WanderingTrader trader) {
@@ -32,6 +48,57 @@ public final class CompramosMod implements ModInitializer {
 		ServerEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
 			if (entity instanceof WanderingTrader trader) {
 				NEXT_TRADER_SOUND_TICKS.remove(trader.getUUID());
+				if (trader.getRemovalReason() == Entity.RemovalReason.DISCARDED
+						&& CompramosConfig.montoyaOnTraderDespawnEnabled) {
+					trader.playSound(CompramosSounds.MONTOYA_POR_FAVOR, 1.0f, 1.0f);
+				}
+			}
+		});
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+			NEXT_CAVE_SOUND_TICKS.remove(handler.player.getUUID());
+			LAST_DONKEY_MOUNTS.remove(handler.player.getUUID());
+		});
+		ServerTickEvents.END_SERVER_TICK.register(server -> {
+			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+				Entity vehicle = player.getVehicle();
+				if (vehicle instanceof Donkey donkey) {
+					UUID previousDonkey = LAST_DONKEY_MOUNTS.put(player.getUUID(), donkey.getUUID());
+					if (!donkey.getUUID().equals(previousDonkey)
+							&& CompramosConfig.terreneitorOnDonkeyMountEnabled) {
+						donkey.playSound(CompramosSounds.TERRENEITOR, 1.0f, 1.0f);
+					}
+				} else {
+					LAST_DONKEY_MOUNTS.remove(player.getUUID());
+				}
+			}
+		});
+		ServerTickEvents.END_SERVER_TICK.register(server -> {
+			if (server.getTickCount() % 100 != 0) {
+				return;
+			}
+
+			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+				if (!CompramosConfig.caveSoundsEnabled) {
+					continue;
+				}
+
+				long currentTick = player.level().getGameTime();
+				boolean inCave = isInDarkCave(player);
+				long nextSoundTick = NEXT_CAVE_SOUND_TICKS.computeIfAbsent(
+						player.getUUID(),
+						uuid -> getNextCaveSoundTick(player, currentTick, inCave)
+				);
+				if (currentTick < nextSoundTick) {
+					continue;
+				}
+
+				if (inCave) {
+					playCaveSound(player);
+				}
+				NEXT_CAVE_SOUND_TICKS.put(
+						player.getUUID(),
+						getNextCaveSoundTick(player, currentTick, inCave)
+				);
 			}
 		});
 		ServerTickEvents.END_LEVEL_TICK.register(world -> {
@@ -43,6 +110,10 @@ public final class CompramosMod implements ModInitializer {
 					EntityTypeTest.forClass(WanderingTrader.class),
 					WanderingTrader::isAlive
 			)) {
+				if (!CompramosConfig.traderSoundsEnabled) {
+					continue;
+				}
+
 				long nextSoundTick = NEXT_TRADER_SOUND_TICKS.computeIfAbsent(
 						trader.getUUID(),
 						uuid -> getNextSoundTick(trader, world.getGameTime())
@@ -67,8 +138,73 @@ public final class CompramosMod implements ModInitializer {
 		NEXT_TRADER_SOUND_TICKS.put(trader.getUUID(), getNextSoundTick(trader, currentTick));
 	}
 
+	public static void refreshSoundSchedules() {
+		NEXT_TRADER_SOUND_TICKS.clear();
+		NEXT_CAVE_SOUND_TICKS.clear();
+	}
+
 	private static long getNextSoundTick(WanderingTrader trader, long currentTick) {
-		return currentTick + MIN_SOUND_INTERVAL_TICKS
-				+ trader.getRandom().nextInt(SOUND_INTERVAL_VARIATION_TICKS);
+		int frequency = CompramosConfig.traderSoundFrequency;
+		int minInterval = MIN_SOUND_INTERVAL_TICKS * (1 << frequency);
+		int intervalVariation = SOUND_INTERVAL_VARIATION_TICKS * (1 << frequency);
+		return currentTick + minInterval + trader.getRandom().nextInt(intervalVariation);
+	}
+
+	private static boolean isInDarkCave(ServerPlayer player) {
+		var level = player.level();
+		var position = player.blockPosition();
+		return !level.canSeeSkyFromBelowWater(position)
+				&& level.getMaxLocalRawBrightness(position) <= 7;
+	}
+
+	private static void playCaveSound(ServerPlayer player) {
+		var sound = player.getRandom().nextBoolean()
+				? CompramosSounds.FULL_COMPRAMOS
+				: CompramosSounds.SIMPLE_COMPRAMOS;
+		if (CompramosConfig.caveParticlesEnabled) {
+			player.connection.send(new ClientboundLevelParticlesPacket(
+					ParticleTypes.ENCHANT,
+					false,
+					true,
+					player.getX(),
+					player.getY() + 1.0,
+					player.getZ(),
+					0.7f,
+					0.8f,
+					0.7f,
+					0.05f,
+					8
+			));
+		}
+		player.connection.send(new ClientboundSoundPacket(
+				BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound),
+				SoundSource.AMBIENT,
+				player.getX(),
+				player.getY(),
+				player.getZ(),
+				0.65f,
+				0.8f + player.getRandom().nextFloat() * 0.4f,
+				player.getRandom().nextLong()
+		));
+	}
+
+	private static long getNextCaveSoundTick(ServerPlayer player, long currentTick, boolean inCave) {
+		if (inCave) {
+			int frequency = CompramosConfig.caveSoundFrequency;
+			int minInterval = switch (frequency) {
+				case 0 -> 36_000;
+				case 2 -> 144_000;
+				default -> MIN_CAVE_SOUND_INTERVAL_TICKS;
+			};
+			int intervalVariation = switch (frequency) {
+				case 0 -> 36_001;
+				case 2 -> 72_001;
+				default -> CAVE_SOUND_INTERVAL_VARIATION_TICKS;
+			};
+			return currentTick + minInterval + player.getRandom().nextInt(intervalVariation);
+		}
+
+		return currentTick + CAVE_CHECK_RETRY_TICKS
+				+ player.getRandom().nextInt(CAVE_CHECK_RETRY_VARIATION_TICKS);
 	}
 }
