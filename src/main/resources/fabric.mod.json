@@ -3,6 +3,10 @@
 	"id": "compramos-by-naiko11",
 	"version": "${version}",
 	"name": "Compramos by Naiko11",
+	"authors": [
+		"Naiko11"
+	],
+	"license": "GPL-3.0-only",
 	"description": "A Minecraft mod centered around the Compramos meme.",
 	"environment": "*",
 	"entrypoints": {
