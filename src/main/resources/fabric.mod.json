@@ -1,0 +1,22 @@
+{
+	"schemaVersion": 1,
+	"id": "compramos",
+	"version": "${version}",
+	"name": "Compramos",
+	"description": "Ein Minecraft-Mod rund um das Compramos-Meme.",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"de.compramos.CompramosMod"
+		],
+		"client": [
+			"de.compramos.client.CompramosClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
