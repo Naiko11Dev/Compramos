@@ -7,10 +7,22 @@ Fabric mod project for Minecraft Java.
 Compramos brings the Compramos meme to Minecraft: the Wandering Trader plays
 the meme sound, and additional gimmicks create more meme moments.
 
-## Project status
+Author: Naiko11
 
-The mod registers two Compramos sounds, provides client commands to test them,
-and plays a random sound near Wandering Traders at intervals.
+## Features
+
+- Wandering Traders randomly play one of two Compramos sounds about every 60
+  to 120 seconds.
+- A Montoya sound plays when a Wandering Trader despawns.
+- A Terreneitor sound plays when a player mounts a donkey.
+- Players in dark underground areas can hear quiet, random Compramos cave
+  ambience about once every two hours, with a brief burst of enchantment
+  particles.
+- Client commands let you test the sounds: `/compramos test full`,
+  `/compramos test simple`, `/compramos test montoya`, and
+  `/compramos test terreneitor`.
+- Mod Menu settings let you toggle the sound features and cave particles, and
+  adjust the trader and cave sound frequencies.
 
 The Minecraft and Fabric versions are defined in [gradle.properties](gradle.properties).
 The target Java version is specified in [build.gradle](build.gradle); the
@@ -93,3 +105,11 @@ Java 25 or newer and Fabric API on both the server and each player's client.
 
 The Wandering Trader plays sounds through the server, which sends them to nearby
 players. A vanilla server cannot load this Fabric mod.
+
+## License
+
+The Java source code is licensed under the GNU General Public License v3.0 only
+(GPL-3.0-only); see [LICENSE](LICENSE). This license does not cover the audio
+files in `src/main/resources/assets/compramos/` or
+`src/main/resources/assets/compramos-by-naiko11/sounds/`. No license for those
+audio files is granted by this repository license.
