@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: GPL-3.0-only
+ * Copyright (C) 2026 Naiko11
+ */
+
 package de.compramos;
 
 import net.fabricmc.api.ModInitializer;
@@ -23,9 +28,13 @@ import java.util.UUID;
 
 import de.compramos.sound.CompramosSounds;
 
+/**
+ * Initializes the mod and manages its server-side sound and particle behavior.
+ */
 public final class CompramosMod implements ModInitializer {
 	public static final String MOD_ID = "compramos-by-naiko11";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+	// Interval bounds are measured in game ticks (20 ticks per second).
 	private static final int MIN_SOUND_INTERVAL_TICKS = 1_200;
 	private static final int SOUND_INTERVAL_VARIATION_TICKS = 1_201;
 	private static final int MIN_CAVE_SOUND_INTERVAL_TICKS = 108_000;
@@ -36,6 +45,9 @@ public final class CompramosMod implements ModInitializer {
 	private static final Map<UUID, Long> NEXT_CAVE_SOUND_TICKS = new HashMap<>();
 	private static final Map<UUID, UUID> LAST_DONKEY_MOUNTS = new HashMap<>();
 
+	/**
+	 * Loads settings, registers sounds, and subscribes to relevant server events.
+	 */
 	@Override
 	public void onInitialize() {
 		CompramosConfig.load();
@@ -62,6 +74,7 @@ public final class CompramosMod implements ModInitializer {
 			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 				Entity vehicle = player.getVehicle();
 				if (vehicle instanceof Donkey donkey) {
+					// Remember the current mount so the sound only plays on a new mount.
 					UUID previousDonkey = LAST_DONKEY_MOUNTS.put(player.getUUID(), donkey.getUUID());
 					if (!donkey.getUUID().equals(previousDonkey)
 							&& CompramosConfig.terreneitorOnDonkeyMountEnabled) {
@@ -73,6 +86,7 @@ public final class CompramosMod implements ModInitializer {
 			}
 		});
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
+			// Cave checks are intentionally less frequent than the server tick rate.
 			if (server.getTickCount() % 100 != 0) {
 				return;
 			}
@@ -92,6 +106,7 @@ public final class CompramosMod implements ModInitializer {
 					continue;
 				}
 
+				// Schedule another long interval in caves, or a shorter retry outside them.
 				if (inCave) {
 					playCaveSound(player);
 				}
@@ -102,6 +117,7 @@ public final class CompramosMod implements ModInitializer {
 			}
 		});
 		ServerTickEvents.END_LEVEL_TICK.register(world -> {
+			// Trader schedules are checked once per second rather than on every tick.
 			if (world.getGameTime() % 20 != 0) {
 				return;
 			}
@@ -134,15 +150,31 @@ public final class CompramosMod implements ModInitializer {
 		LOGGER.info("Initializing Compramos mod.");
 	}
 
+	/**
+	 * Sets the next sound time for a wandering trader.
+	 *
+	 * @param trader the trader to schedule
+	 * @param currentTick the current world tick
+	 */
 	private static void scheduleNextSound(WanderingTrader trader, long currentTick) {
 		NEXT_TRADER_SOUND_TICKS.put(trader.getUUID(), getNextSoundTick(trader, currentTick));
 	}
 
+	/**
+	 * Clears cached sound times so changed settings are applied to active entities.
+	 */
 	public static void refreshSoundSchedules() {
 		NEXT_TRADER_SOUND_TICKS.clear();
 		NEXT_CAVE_SOUND_TICKS.clear();
 	}
 
+	/**
+	 * Calculates a randomized next sound time using the configured trader frequency.
+	 *
+	 * @param trader the trader whose random generator is used
+	 * @param currentTick the current world tick
+	 * @return the world tick when the next sound is due
+	 */
 	private static long getNextSoundTick(WanderingTrader trader, long currentTick) {
 		int frequency = CompramosConfig.traderSoundFrequency;
 		int minInterval = MIN_SOUND_INTERVAL_TICKS * (1 << frequency);
@@ -150,6 +182,12 @@ public final class CompramosMod implements ModInitializer {
 		return currentTick + minInterval + trader.getRandom().nextInt(intervalVariation);
 	}
 
+	/**
+	 * Checks whether the player is underground and in sufficiently low light.
+	 *
+	 * @param player the player to inspect
+	 * @return {@code true} if the player's position meets the dark-cave conditions
+	 */
 	private static boolean isInDarkCave(ServerPlayer player) {
 		var level = player.level();
 		var position = player.blockPosition();
@@ -157,6 +195,11 @@ public final class CompramosMod implements ModInitializer {
 				&& level.getMaxLocalRawBrightness(position) <= 7;
 	}
 
+	/**
+	 * Sends a cave ambience sound and, when enabled, its particle effect to one player.
+	 *
+	 * @param player the player who receives the sound and particles
+	 */
 	private static void playCaveSound(ServerPlayer player) {
 		var sound = player.getRandom().nextBoolean()
 				? CompramosSounds.FULL_COMPRAMOS
@@ -188,6 +231,14 @@ public final class CompramosMod implements ModInitializer {
 		));
 	}
 
+	/**
+	 * Calculates the next cave check or sound time according to the player's location.
+	 *
+	 * @param player the player whose random generator is used
+	 * @param currentTick the current world tick
+	 * @param inCave whether the player currently meets the dark-cave conditions
+	 * @return the world tick when the next check or sound is due
+	 */
 	private static long getNextCaveSoundTick(ServerPlayer player, long currentTick, boolean inCave) {
 		if (inCave) {
 			int frequency = CompramosConfig.caveSoundFrequency;

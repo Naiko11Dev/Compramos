@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: GPL-3.0-only
+ * Copyright (C) 2026 Naiko11
+ */
+
 package de.compramos.client;
 
 import de.compramos.CompramosMod;
@@ -10,7 +15,13 @@ import net.minecraft.sounds.SoundEvent;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal;
 
+/**
+ * Registers client-side commands and initializes client-specific mod behavior.
+ */
 public final class CompramosClient implements ClientModInitializer {
+	/**
+	 * Registers the {@code /compramos test} sound playback commands.
+	 */
 	@Override
 	public void onInitializeClient() {
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
@@ -28,6 +39,14 @@ public final class CompramosClient implements ClientModInitializer {
 		CompramosMod.LOGGER.info("Initializing Compramos client.");
 	}
 
+	/**
+	 * Plays one of the mod's sounds for the command's player.
+	 *
+	 * @param source the player and feedback context for the command
+	 * @param sound the sound event to play
+	 * @param name the readable sound name shown in command feedback
+	 * @return the command success result
+	 */
 	private static int playSound(FabricClientCommandSource source, SoundEvent sound, String name) {
 		source.getPlayer().playSound(sound, 1.0f, 1.0f);
 		source.sendFeedback(Component.literal("Playing the " + name + " Compramos sound."));
