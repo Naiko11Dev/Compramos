@@ -38,6 +38,8 @@ public final class CompramosConfig {
 	public static int caveSoundFrequency = 1;
 	/** Enables particles alongside cave sounds. */
 	public static boolean caveParticlesEnabled = true;
+	/** Sets the volume of all Compramos sounds from 0.0 to 1.0. */
+	public static float soundVolume = 1.0f;
 
 	private CompramosConfig() {
 	}
@@ -65,6 +67,7 @@ public final class CompramosConfig {
 			caveSoundsEnabled = getBoolean(config, "caveSoundsEnabled", true);
 			caveSoundFrequency = getFrequency(config, "caveSoundFrequency", 0, 2, 1);
 			caveParticlesEnabled = getBoolean(config, "caveParticlesEnabled", true);
+			soundVolume = getVolume(config, "soundVolume", 1.0f);
 		} catch (IOException | JsonParseException exception) {
 			CompramosMod.LOGGER.error("Could not read Compramos config at {}.", CONFIG_PATH, exception);
 		}
@@ -82,6 +85,7 @@ public final class CompramosConfig {
 		config.addProperty("caveSoundsEnabled", caveSoundsEnabled);
 		config.addProperty("caveSoundFrequency", caveSoundFrequency);
 		config.addProperty("caveParticlesEnabled", caveParticlesEnabled);
+		config.addProperty("soundVolume", soundVolume);
 
 		try {
 			Files.createDirectories(CONFIG_PATH.getParent());
@@ -127,5 +131,23 @@ public final class CompramosConfig {
 
 		int value = config.get(key).getAsInt();
 		return value >= min && value <= max ? value : defaultValue;
+	}
+
+	/**
+	 * Reads a finite sound volume between 0.0 and 1.0 or returns its default.
+	 *
+	 * @param config the parsed configuration object
+	 * @param key the setting's JSON property name
+	 * @param defaultValue the value to use when the property is invalid
+	 * @return the stored volume if it is within bounds, otherwise the default
+	 */
+	private static float getVolume(JsonObject config, String key, float defaultValue) {
+		if (!config.has(key) || !config.get(key).isJsonPrimitive()
+				|| !config.get(key).getAsJsonPrimitive().isNumber()) {
+			return defaultValue;
+		}
+
+		float value = config.get(key).getAsFloat();
+		return Float.isFinite(value) && value >= 0.0f && value <= 1.0f ? value : defaultValue;
 	}
 }

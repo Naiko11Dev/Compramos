@@ -62,7 +62,7 @@ public final class CompramosMod implements ModInitializer {
 				NEXT_TRADER_SOUND_TICKS.remove(trader.getUUID());
 				if (trader.getRemovalReason() == Entity.RemovalReason.DISCARDED
 						&& CompramosConfig.montoyaOnTraderDespawnEnabled) {
-					trader.playSound(CompramosSounds.MONTOYA_POR_FAVOR, 1.0f, 1.0f);
+					trader.playSound(CompramosSounds.MONTOYA_POR_FAVOR, CompramosConfig.soundVolume, 1.0f);
 				}
 			}
 		});
@@ -78,7 +78,7 @@ public final class CompramosMod implements ModInitializer {
 					UUID previousDonkey = LAST_DONKEY_MOUNTS.put(player.getUUID(), donkey.getUUID());
 					if (!donkey.getUUID().equals(previousDonkey)
 							&& CompramosConfig.terreneitorOnDonkeyMountEnabled) {
-						donkey.playSound(CompramosSounds.TERRENEITOR, 1.0f, 1.0f);
+						donkey.playSound(CompramosSounds.TERRENEITOR, CompramosConfig.soundVolume, 1.0f);
 					}
 				} else {
 					LAST_DONKEY_MOUNTS.remove(player.getUUID());
@@ -139,7 +139,7 @@ public final class CompramosMod implements ModInitializer {
 							trader.getRandom().nextBoolean()
 									? CompramosSounds.FULL_COMPRAMOS
 									: CompramosSounds.SIMPLE_COMPRAMOS,
-							1.0f,
+							CompramosConfig.soundVolume,
 							1.0f
 					);
 					scheduleNextSound(trader, world.getGameTime());
@@ -225,7 +225,7 @@ public final class CompramosMod implements ModInitializer {
 				player.getX(),
 				player.getY(),
 				player.getZ(),
-				0.65f,
+				0.65f * CompramosConfig.soundVolume,
 				0.8f + player.getRandom().nextFloat() * 0.4f,
 				player.getRandom().nextLong()
 		));

@@ -5,6 +5,7 @@
 
 package de.compramos.client;
 
+import de.compramos.CompramosConfig;
 import de.compramos.CompramosMod;
 import de.compramos.sound.CompramosSounds;
 import net.fabricmc.api.ClientModInitializer;
@@ -48,7 +49,7 @@ public final class CompramosClient implements ClientModInitializer {
 	 * @return the command success result
 	 */
 	private static int playSound(FabricClientCommandSource source, SoundEvent sound, String name) {
-		source.getPlayer().playSound(sound, 1.0f, 1.0f);
+		source.getPlayer().playSound(sound, CompramosConfig.soundVolume, 1.0f);
 		source.sendFeedback(Component.literal("Playing the " + name + " Compramos sound."));
 		return 1;
 	}

@@ -22,7 +22,7 @@ Author: Naiko11
   `/compramos test simple`, `/compramos test montoya`, and
   `/compramos test terreneitor`.
 - Mod Menu settings let you toggle the sound features and cave particles, and
-  adjust the trader and cave sound frequencies.
+  adjust the trader and cave sound frequencies and Compramos sound volume.
 
 The Minecraft and Fabric versions are defined in [gradle.properties](gradle.properties).
 The target Java version is specified in [build.gradle](build.gradle); the
@@ -70,15 +70,16 @@ brief, subtle burst of enchantment particles around that player.
 
 Install Mod Menu to open Compramos' settings from its entry in the Mods menu.
 The settings let you toggle Wandering Trader sounds and cave ambience, choose
-their frequency, enable the Montoya and Terreneitor event sounds, and toggle the
-cave particles. The screen saves changes immediately to
-`config/compramos-by-naiko11.json`.
+their frequency, enable the Montoya and Terreneitor event sounds, toggle the
+cave particles, and adjust the volume of all Compramos sounds. Volume changes
+are saved when leaving the settings screen to
+`config/compramos-by-naiko11.json`; other selections are saved immediately.
 
 In singleplayer, the integrated server uses the same settings. On a dedicated
 server, change the settings in the server's
 `config/compramos-by-naiko11.json` and restart it; a player's local settings
-screen does not change a remote server's configuration. Install Mod Menu on
-the client to access the settings screen.
+screen does not change a remote server's configuration or its sound volume.
+Install Mod Menu on the client to access the settings screen.
 
 Minecraft sound assets use OGG Vorbis. The source audio files are kept in
 `src/main/resources/assets/compramos/`; registered OGG sound assets are stored
@@ -96,7 +97,7 @@ Java 25 or newer and Fabric API on both the server and each player's client.
    .\gradlew.bat build
    ```
 
-3. Upload `build/libs/compramos-by-naiko11-0.2.0.jar` and a matching Fabric API
+3. Upload `build/libs/compramos-by-naiko11-0.2.1.jar` and a matching Fabric API
    JAR to the server's `mods` folder. Create the folder if it does not exist.
 4. Install the Compramos mod and Fabric API in each player's client `mods`
    folder too, so clients have the sound assets. Install Mod Menu on clients if

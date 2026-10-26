@@ -6,6 +6,7 @@
 package de.compramos.client.gui;
 
 import de.compramos.CompramosConfig;
+import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.Screen;
@@ -20,6 +21,7 @@ public final class CompramosConfigScreen extends Screen {
 	/** The available frequency choices, represented by their configuration values. */
 	private static final List<Integer> FREQUENCIES = List.of(0, 1, 2);
 	private final Screen parent;
+	private final float initialSoundVolume;
 
 	/**
 	 * Creates the settings screen and remembers the screen to return to.
@@ -29,6 +31,7 @@ public final class CompramosConfigScreen extends Screen {
 	public CompramosConfigScreen(Screen parent) {
 		super(Component.literal("Compramos Settings"));
 		this.parent = parent;
+		this.initialSoundVolume = CompramosConfig.soundVolume;
 	}
 
 	/**
@@ -82,8 +85,26 @@ public final class CompramosConfigScreen extends Screen {
 					CompramosConfig.caveParticlesEnabled = enabled;
 					CompramosConfig.save();
 				}));
+		addRenderableWidget(new AbstractSliderButton(
+				x,
+				y + rowHeight * 7,
+				300,
+				20,
+				volumeLabel(CompramosConfig.soundVolume),
+				CompramosConfig.soundVolume
+		) {
+			@Override
+			protected void updateMessage() {
+				setMessage(volumeLabel(value));
+			}
+
+			@Override
+			protected void applyValue() {
+				CompramosConfig.soundVolume = (float) value;
+			}
+		});
 		addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
-				.bounds(x, y + rowHeight * 7, 300, 20)
+				.bounds(x, y + rowHeight * 8, 300, 20)
 				.build());
 	}
 
@@ -92,7 +113,14 @@ public final class CompramosConfigScreen extends Screen {
 	 */
 	@Override
 	public void onClose() {
+		if (CompramosConfig.soundVolume != initialSoundVolume) {
+			CompramosConfig.save();
+		}
 		minecraft.setScreenAndShow(parent);
+	}
+
+	private static Component volumeLabel(double volume) {
+		return Component.literal("Compramos sound volume: " + Math.round(volume * 100) + "%");
 	}
 
 	/**
