@@ -1,53 +1,48 @@
 # Compramos by Naiko11
 
-Bring the Compramos sound meme into Minecraft with this mod. Wandering
-Traders can play Compramos sounds, while cave ambience and special events add
-more unexpected moments.
+Bring the Compramos meme to Minecraft! Let its familiar sounds catch you off
+guard, turn ordinary moments into hilarious surprises, and make your world a
+little more unpredictable. Bring a bit more fun into your minecraft world. Enjoy!
 
 ## Features
 
 - Wandering Traders randomly play one of two Compramos sounds about every
   60 to 120 seconds.
+
+<details>
+<summary>Spoilers: special events</summary>
+
 - Players in dark caves can hear quiet Compramos ambience roughly every two
   hours. Each cave sound has a 20% chance to spawn a Wandering Trader nearby
   inside the cave, provided a safe spot is available. Trader sounds do not
-  trigger additional spawns.
+  trigger additional spawns. Spawning can be disabled, and the chance is
+  configurable.
 - A Montoya sound plays when a Wandering Trader despawns.
 - A Terreneitor sound plays when a player mounts a donkey.
-- Optional Mod Menu settings let you toggle sound features and particles,
-  adjust sound frequencies and spawn chance, and set the sound volume.
 
-## Commands
+</details>
 
-`/compramos help` lists the available commands and is available to everyone.
-
-The following server commands require operator permission level 2:
-
-- `/compramos play <player> [full|simple|montoya|terreneitor]` plays a sound
-  only for the selected player. Without a sound name, it randomly plays the
-  full or simple Compramos sound.
-- `/compramos trader spawn [player]` spawns a Wandering Trader near the
-  command source or selected player. In a dark cave, it searches for a safe
-  underground spawn location.
-
-These client-only commands play sounds locally and do not require operator
-permissions:
-
-- `/compramos test full`
-- `/compramos test simple`
-- `/compramos test montoya`
-- `/compramos test terreneitor`
+- Settings let you toggle sound features and particles, adjust sound frequencies, and set the sound volume.
 
 ## Installation
 
 Requires Minecraft Java Edition 26.3, Java 25 or newer, Fabric Loader 0.20.1
 or newer, and Fabric API for Minecraft 26.3.
-
-Install Compramos and Fabric API on the client to load the sound assets. To
-use the mod on a multiplayer server, install it and Fabric API on the Fabric
-server as well. Clients connecting to that server also need the mod.
-
 Mod Menu is optional and is only needed to open the in-game settings screen.
+
+### Client
+
+Install Compramos through a launcher that supports Fabric, such as the
+Modrinth App or CurseForge App, or manually copy the Compramos JAR and
+matching Fabric API JAR into the Minecraft instance's `mods` folder. Use a
+Fabric profile for Minecraft 26.3.
+
+### Server
+
+For multiplayer, install Compramos and Fabric API on the Fabric server through
+its launcher or hosting panel, or manually copy both JARs into the server's
+`mods` folder. Every connecting client must also have Compramos and Fabric API
+installed to load the sound assets.
 
 ## Settings
 
@@ -55,6 +50,18 @@ Without Mod Menu, edit `config/compramos-by-naiko11.json` in the Minecraft
 instance's `config` folder. On a dedicated server, edit the file in the
 server's `config` folder and restart the server. A client's local settings do
 not change a dedicated server's configuration.
+
+## Commands
+
+| Command | Where / permission | Description |
+| --- | --- | --- |
+| `/compramos help` | Server; everyone | Lists the available commands. |
+| `/compramos play <player> [full\|simple\|montoya\|terreneitor]` | Server; operator level 2 | Plays a sound only for the selected player. Without a sound name, it randomly plays one of the two main sounds. |
+| `/compramos trader spawn [player]` | Server; operator level 2 | Spawns a Wandering Trader near the command source or selected player. In a dark cave, it searches for a safe underground spawn location. |
+| `/compramos test full` | Client only | Plays the full sound locally. |
+| `/compramos test simple` | Client only | Plays the simple sound locally. |
+| `/compramos test montoya` | Client only | Plays the Montoya sound locally. |
+| `/compramos test terreneitor` | Client only | Plays the Terreneitor sound locally. |
 
 ## License
 
