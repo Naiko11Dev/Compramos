@@ -21,17 +21,32 @@ Author: Naiko11
 - Players in dark underground areas can hear quiet, random Compramos cave
   ambience about once every two hours, with a brief burst of enchantment
   particles.
-- Client commands let you test the sounds: `/compramos test full`,
-  `/compramos test simple`, `/compramos test montoya`, and
-  `/compramos test terreneitor`.
-- Operators can use `/compramos play <spieler> [full|simple|montoya|terreneitor]`
-  to play a sound only for the selected player. Without a sound name, one of
-  the two main Compramos sounds is chosen randomly.
-- Operators can use `/compramos trader spawn [spieler]` to spawn a Wandering
-  Trader near themselves or a selected player. `/compramos help` lists the
-  server commands.
-- Mod Menu settings let you toggle the sound features and cave particles, and
-  adjust the trader and cave sound frequencies and Compramos sound volume.
+- Client and operator commands are described in the [Commands](#commands)
+  section.
+- Optional Mod Menu settings let you toggle the sound features and cave
+  particles, and adjust the trader and cave sound frequencies and Compramos
+  sound volume.
+
+## Commands
+
+`/compramos help` lists the available commands and can be used by anyone.
+
+The following server commands require operator permission level 2:
+
+- `/compramos play <spieler> [full|simple|montoya|terreneitor]` plays the
+  selected sound only for that player. If the optional sound is omitted, it
+  randomly plays the full or simple Compramos sound.
+- `/compramos trader spawn [spieler]` spawns a Wandering Trader near the
+  command source, or near the selected player. If the location is in a dark
+  cave, it searches for a safe spawn position in the cave.
+
+The client-only test commands play a sound locally and do not require operator
+permissions:
+
+- `/compramos test full`
+- `/compramos test simple`
+- `/compramos test montoya`
+- `/compramos test terreneitor`
 
 The Minecraft and Fabric versions are defined in [gradle.properties](gradle.properties).
 The target Java version is specified in [build.gradle](build.gradle); the
@@ -62,19 +77,12 @@ the Minecraft client for development.
 
 ## Sound files
 
-The Compramos sounds are registered as Minecraft sound events. Test them with
-`/compramos test full`, `/compramos test simple`, `/compramos test montoya`, or
-`/compramos test terreneitor`. While a Wandering Trader is loaded in the world,
-it randomly chooses one of the original two sounds about every 60 to 120 seconds.
+The Compramos sounds are registered as Minecraft sound events. While a
+Wandering Trader is loaded in the world, it randomly chooses one of the
+original two sounds about every 60 to 120 seconds.
 
 The Montoya sound plays when a Wandering Trader despawns. The Terreneitor sound
 plays when a player mounts a donkey.
-
-Operators can run `/compramos play <spieler> [full|simple|montoya|terreneitor]`
-to send a selected sound only to that player's client. Without the optional
-sound name, one of the two main Compramos sounds is chosen randomly. The
-`/compramos trader spawn [spieler]` command spawns a Wandering Trader near the
-command source or selected player.
 
 As a separate cave ambience feature, players in dark underground areas can also
 hear one of the sounds randomly about once every two hours. These quiet ambient
@@ -85,19 +93,24 @@ the Wandering Trader's own sounds do not trigger spawns.
 
 ## Settings
 
-Install Mod Menu to open Compramos' settings from its entry in the Mods menu.
-The settings let you toggle Wandering Trader sounds, trader spawning, and cave
+Mod Menu is optional and only needed to open Compramos' settings screen. The
+settings let you toggle Wandering Trader sounds, trader spawning, and cave
 ambience; choose the trader spawn chance and sound frequencies; enable the
 Montoya and Terreneitor event sounds; toggle cave particles; and adjust the
 volume of all Compramos sounds. Volume and spawn-chance changes are saved when
 leaving the settings screen to
 `config/compramos-by-naiko11.json`; other selections are saved immediately.
 
+Without Mod Menu, you can edit `config/compramos-by-naiko11.json` directly in
+the Minecraft instance's `config` folder. If the file does not exist yet, start
+the game once to create it. For example, to disable trader spawning, set
+`"traderSpawningEnabled": false`; `traderSpawnChance` accepts values from 1 to
+100. Close the game before editing and restart it afterward.
+
 In singleplayer, the integrated server uses the same settings. On a dedicated
-server, change the settings in the server's
-`config/compramos-by-naiko11.json` and restart it; a player's local settings
-screen does not change a remote server's configuration or its sound volume.
-Install Mod Menu on the client to access the settings screen.
+server, edit the server's `config/compramos-by-naiko11.json` and restart it; a
+player's local settings screen or config file does not change a remote server's
+configuration or its sound volume.
 
 Minecraft sound assets use OGG Vorbis. The source audio files are kept in
 `src/main/resources/assets/compramos/`; registered OGG sound assets are stored
@@ -107,8 +120,8 @@ in `src/main/resources/assets/compramos-by-naiko11/sounds/`.
 
 For a simpler client installation, Compramos will be available through
 Modrinth and CurseForge. Use a Fabric profile for the same Minecraft version
-as the server, and install Fabric API and Compramos. Install Mod Menu as well
-if you want to open the settings screen.
+as the server, and install Fabric API and Compramos. Install Mod Menu only if
+you want to open the settings screen.
 
 ## Install on a server
 

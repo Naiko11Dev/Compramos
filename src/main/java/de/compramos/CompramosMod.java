@@ -95,7 +95,8 @@ public final class CompramosMod implements ModInitializer {
 								"Compramos commands:\n"
 										+ "/compramos play <player> [full|simple|montoya|terreneitor]\n"
 										+ "/compramos trader spawn [player]\n"
-										+ "/compramos help"
+										+ "/compramos help\n"
+										+ "Client only: /compramos test <full|simple|montoya|terreneitor>"
 						), false);
 						return 1;
 					})));
