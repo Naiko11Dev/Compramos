@@ -21,6 +21,8 @@ Author: Naiko11
 - Client commands let you test the sounds: `/compramos test full`,
   `/compramos test simple`, `/compramos test montoya`, and
   `/compramos test terreneitor`.
+- Operators can use the server command `/compramos play <spieler>` to play a
+  Compramos sound only for the selected player.
 - Mod Menu settings let you toggle the sound features and cave particles, and
   adjust the trader and cave sound frequencies and Compramos sound volume.
 
@@ -60,6 +62,9 @@ it randomly chooses one of the original two sounds about every 60 to 120 seconds
 
 The Montoya sound plays when a Wandering Trader despawns. The Terreneitor sound
 plays when a player mounts a donkey.
+
+Operators can run `/compramos play <spieler>` to send one of the two main
+Compramos sounds only to that player's client.
 
 As a separate cave ambience feature, players in dark underground areas can also
 hear one of the sounds randomly about once every two hours. These quiet ambient

@@ -6,14 +6,20 @@
 package de.compramos;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.equine.Donkey;
@@ -52,6 +58,34 @@ public final class CompramosMod implements ModInitializer {
 	public void onInitialize() {
 		CompramosConfig.load();
 		CompramosSounds.register();
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
+				dispatcher.register(Commands.literal("compramos")
+						.then(Commands.literal("play")
+								.requires(source -> source.permissions()
+										.hasPermission(Permissions.COMMANDS_GAMEMASTER))
+								.then(Commands.argument("player", EntityArgument.player())
+										.executes(context -> {
+											ServerPlayer player = EntityArgument.getPlayer(context, "player");
+											SoundEvent sound = player.getRandom().nextBoolean()
+													? CompramosSounds.FULL_COMPRAMOS
+													: CompramosSounds.SIMPLE_COMPRAMOS;
+											player.connection.send(new ClientboundSoundPacket(
+													BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound),
+													SoundSource.PLAYERS,
+													player.getX(),
+													player.getY(),
+													player.getZ(),
+													CompramosConfig.soundVolume,
+													1.0f,
+													player.getRandom().nextLong()
+											));
+											context.getSource().sendSuccess(
+													() -> Component.literal("Playing a Compramos sound for "
+															+ player.getScoreboardName() + "."),
+													false
+											);
+											return 1;
+										})))));
 		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 			if (entity instanceof WanderingTrader trader) {
 				scheduleNextSound(trader, world.getGameTime());
