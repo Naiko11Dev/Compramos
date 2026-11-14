@@ -6,23 +6,19 @@ little more unpredictable. Bring a bit more fun into your minecraft world. Enjoy
 
 ## Features
 
-- Wandering Traders randomly play one of two Compramos sounds about every
-  60 to 120 seconds.
-
 <details>
 <summary>Spoilers: special events</summary>
 
-- Players in dark caves can hear quiet Compramos ambience roughly every two
+- Wandering Traders randomly play one of two Compramos sounds about every
+  60 to 120 seconds.
+- Players in dark caves can hear quiet Compramos ambience and see mystical particles roughly every two
   hours. Each cave sound has a 20% chance to spawn a Wandering Trader nearby
-  inside the cave, provided a safe spot is available. Trader sounds do not
-  trigger additional spawns. Spawning can be disabled, and the chance is
+  inside the cave, provided a safe spot is available. Spawning can be disabled, and the chance is
   configurable.
 - A Montoya sound plays when a Wandering Trader despawns.
 - A Terreneitor sound plays when a player mounts a donkey.
 
 </details>
-
-- Settings let you toggle sound features and particles, adjust sound frequencies, and set the sound volume.
 
 ## Installation
 
@@ -45,6 +41,15 @@ its launcher or hosting panel, or manually copy both JARs into the server's
 installed to load the sound assets.
 
 ## Settings
+
+| Setting | What you can change |
+| --- | --- |
+| Wandering Trader sounds | Toggle them and adjust how often they play. |
+| Cave ambience | Toggle it and adjust how often it plays. |
+| Trader spawning | Enable or disable it; set the chance (20% by default). |
+| Event sounds | Toggle Montoya on despawn and Terreneitor on donkey mount. |
+| Cave particles | Toggle the particles that accompany cave sounds. |
+| Sound volume | Adjust the volume of Compramos sounds. |
 
 Without Mod Menu, edit `config/compramos-by-naiko11.json` in the Minecraft
 instance's `config` folder. On a dedicated server, edit the file in the
