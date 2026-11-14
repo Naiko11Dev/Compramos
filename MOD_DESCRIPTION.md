@@ -1,6 +1,6 @@
 # Compramos by Naiko11
 
-Bring the Compramos meme to Minecraft! Let its familiar sounds catch you off
+Bring the Compramos meme to Minecraft! Let its sounds catch you off
 guard, turn ordinary moments into hilarious surprises, and make your world a
 little more unpredictable. Bring a bit more fun into your minecraft world. Enjoy!
 
@@ -42,6 +42,9 @@ installed to load the sound assets.
 
 ## Settings
 
+<details>
+<summary>Spoiler: settings</summary>
+
 | Setting | What you can change |
 | --- | --- |
 | Wandering Trader sounds | Toggle them and adjust how often they play. |
@@ -50,6 +53,8 @@ installed to load the sound assets.
 | Event sounds | Toggle Montoya on despawn and Terreneitor on donkey mount. |
 | Cave particles | Toggle the particles that accompany cave sounds. |
 | Sound volume | Adjust the volume of Compramos sounds. |
+
+</details>
 
 Without Mod Menu, edit `config/compramos-by-naiko11.json` in the Minecraft
 instance's `config` folder. On a dedicated server, edit the file in the
