@@ -13,7 +13,9 @@ Author: Naiko11
 
 - Wandering Traders randomly play one of two Compramos sounds about every 60
   to 120 seconds.
-- Each trader sound has a 20% chance to spawn another Wandering Trader nearby.
+- Each random cave sound has a 20% chance to spawn a Wandering Trader nearby
+  inside the cave if a safe spot is available. The trader's own periodic sounds
+  do not trigger spawns.
 - A Montoya sound plays when a Wandering Trader despawns.
 - A Terreneitor sound plays when a player mounts a donkey.
 - Players in dark underground areas can hear quiet, random Compramos cave
@@ -22,8 +24,12 @@ Author: Naiko11
 - Client commands let you test the sounds: `/compramos test full`,
   `/compramos test simple`, `/compramos test montoya`, and
   `/compramos test terreneitor`.
-- Operators can use the server command `/compramos play <spieler>` to play a
-  Compramos sound only for the selected player.
+- Operators can use `/compramos play <spieler> [full|simple|montoya|terreneitor]`
+  to play a sound only for the selected player. Without a sound name, one of
+  the two main Compramos sounds is chosen randomly.
+- Operators can use `/compramos trader spawn [spieler]` to spawn a Wandering
+  Trader near themselves or a selected player. `/compramos help` lists the
+  server commands.
 - Mod Menu settings let you toggle the sound features and cave particles, and
   adjust the trader and cave sound frequencies and Compramos sound volume.
 
@@ -64,13 +70,18 @@ it randomly chooses one of the original two sounds about every 60 to 120 seconds
 The Montoya sound plays when a Wandering Trader despawns. The Terreneitor sound
 plays when a player mounts a donkey.
 
-Operators can run `/compramos play <spieler>` to send one of the two main
-Compramos sounds only to that player's client.
+Operators can run `/compramos play <spieler> [full|simple|montoya|terreneitor]`
+to send a selected sound only to that player's client. Without the optional
+sound name, one of the two main Compramos sounds is chosen randomly. The
+`/compramos trader spawn [spieler]` command spawns a Wandering Trader near the
+command source or selected player.
 
 As a separate cave ambience feature, players in dark underground areas can also
 hear one of the sounds randomly about once every two hours. These quiet ambient
 sounds are sent only to the player who triggered them and are accompanied by a
-brief, subtle burst of enchantment particles around that player.
+brief, subtle burst of enchantment particles around that player. Each cave
+sound has a configurable chance to spawn a Wandering Trader near the player;
+the Wandering Trader's own sounds do not trigger spawns.
 
 ## Settings
 

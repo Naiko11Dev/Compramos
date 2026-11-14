@@ -5,24 +5,30 @@
 
 package de.compramos;
 
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permissions;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.animal.equine.Donkey;
@@ -62,34 +68,38 @@ public final class CompramosMod implements ModInitializer {
 	public void onInitialize() {
 		CompramosConfig.load();
 		CompramosSounds.register();
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
-				dispatcher.register(Commands.literal("compramos")
-						.then(Commands.literal("play")
-								.requires(source -> source.permissions()
-										.hasPermission(Permissions.COMMANDS_GAMEMASTER))
-								.then(Commands.argument("player", EntityArgument.player())
-										.executes(context -> {
-											ServerPlayer player = EntityArgument.getPlayer(context, "player");
-											SoundEvent sound = player.getRandom().nextBoolean()
-													? CompramosSounds.FULL_COMPRAMOS
-													: CompramosSounds.SIMPLE_COMPRAMOS;
-											player.connection.send(new ClientboundSoundPacket(
-													BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound),
-													SoundSource.PLAYERS,
-													player.getX(),
-													player.getY(),
-													player.getZ(),
-													CompramosConfig.soundVolume,
-													1.0f,
-													player.getRandom().nextLong()
-											));
-											context.getSource().sendSuccess(
-													() -> Component.literal("Playing a Compramos sound for "
-															+ player.getScoreboardName() + "."),
-													false
-											);
-											return 1;
-										})))));
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+			dispatcher.register(Commands.literal("compramos")
+					.then(Commands.literal("play")
+							.requires(source -> source.permissions()
+									.hasPermission(Permissions.COMMANDS_GAMEMASTER))
+							.then(Commands.argument("player", EntityArgument.player())
+									.executes(CompramosMod::playRandomSound)
+									.then(Commands.literal("full").executes(context ->
+											playSoundForTarget(context, CompramosSounds.FULL_COMPRAMOS, "the full sound")))
+									.then(Commands.literal("simple").executes(context ->
+											playSoundForTarget(context, CompramosSounds.SIMPLE_COMPRAMOS, "the simple sound")))
+									.then(Commands.literal("montoya").executes(context ->
+											playSoundForTarget(context, CompramosSounds.MONTOYA_POR_FAVOR, "the Montoya sound")))
+									.then(Commands.literal("terreneitor").executes(context ->
+											playSoundForTarget(context, CompramosSounds.TERRENEITOR, "the Terreneitor sound")))))
+					.then(Commands.literal("trader")
+							.then(Commands.literal("spawn")
+									.requires(source -> source.permissions()
+											.hasPermission(Permissions.COMMANDS_GAMEMASTER))
+									.executes(CompramosMod::spawnTraderAtSource)
+									.then(Commands.argument("player", EntityArgument.player())
+											.executes(CompramosMod::spawnTraderNearPlayer))))
+					.then(Commands.literal("help").executes(context -> {
+						context.getSource().sendSuccess(() -> Component.literal(
+								"Compramos commands:\n"
+										+ "/compramos play <player> [full|simple|montoya|terreneitor]\n"
+										+ "/compramos trader spawn [player]\n"
+										+ "/compramos help"
+						), false);
+						return 1;
+					})));
+		});
 		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 			if (entity instanceof WanderingTrader trader) {
 				scheduleNextSound(trader, world.getGameTime());
@@ -180,10 +190,6 @@ public final class CompramosMod implements ModInitializer {
 							CompramosConfig.soundVolume,
 							1.0f
 					);
-					if (CompramosConfig.traderSpawningEnabled
-							&& trader.getRandom().nextInt(100) < CompramosConfig.traderSpawnChance) {
-						spawnWanderingTrader(world, trader);
-					}
 					scheduleNextSound(trader, world.getGameTime());
 				}
 			}
@@ -224,51 +230,146 @@ public final class CompramosMod implements ModInitializer {
 		return currentTick + minInterval + trader.getRandom().nextInt(intervalVariation);
 	}
 
+	private static int playRandomSound(CommandContext<CommandSourceStack> context)
+			throws CommandSyntaxException {
+		ServerPlayer player = EntityArgument.getPlayer(context, "player");
+		SoundEvent sound = player.getRandom().nextBoolean()
+				? CompramosSounds.FULL_COMPRAMOS
+				: CompramosSounds.SIMPLE_COMPRAMOS;
+		return playSoundForTarget(context, sound, "a Compramos sound");
+	}
+
+	private static int playSoundForTarget(
+			CommandContext<CommandSourceStack> context,
+			SoundEvent sound,
+			String soundName
+	) throws CommandSyntaxException {
+		ServerPlayer player = EntityArgument.getPlayer(context, "player");
+		player.connection.send(new ClientboundSoundPacket(
+				BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound),
+				SoundSource.PLAYERS,
+				player.getX(),
+				player.getY(),
+				player.getZ(),
+				CompramosConfig.soundVolume,
+				1.0f,
+				player.getRandom().nextLong()
+		));
+		context.getSource().sendSuccess(
+				() -> Component.literal("Playing " + soundName + " for " + player.getScoreboardName() + "."),
+				false
+		);
+		return 1;
+	}
+
+	private static int spawnTraderAtSource(CommandContext<CommandSourceStack> context) {
+		CommandSourceStack source = context.getSource();
+		BlockPos position = BlockPos.containing(source.getPosition());
+		return spawnTraderWithFeedback(source, source.getLevel(), position, "the command location");
+	}
+
+	private static int spawnTraderNearPlayer(CommandContext<CommandSourceStack> context)
+			throws CommandSyntaxException {
+		ServerPlayer player = EntityArgument.getPlayer(context, "player");
+		return spawnTraderWithFeedback(
+				context.getSource(),
+				player.level(),
+				player.blockPosition(),
+				player.getScoreboardName()
+		);
+	}
+
+	private static int spawnTraderWithFeedback(
+			CommandSourceStack source,
+			ServerLevel level,
+			BlockPos position,
+			String location
+	) {
+		if (!spawnWanderingTrader(level, position, level.getRandom())) {
+			source.sendFailure(Component.literal("Could not find a safe place to spawn a Wandering Trader."));
+			return 0;
+		}
+
+		source.sendSuccess(
+				() -> Component.literal("Spawned a Wandering Trader near " + location + "."),
+				false
+		);
+		return 1;
+	}
+
 	/**
-	 * Tries to spawn a new wandering trader near the trader that played a sound.
+	 * Tries to spawn a wandering trader near a position.
 	 *
 	 * @param level the world in which to spawn the trader
-	 * @param source the trader whose sound triggered the spawn chance
+	 * @param center the position around which to search for a spawn location
+	 * @param random the random source used to choose the spawn position
+	 * @return whether the trader was successfully spawned
 	 */
-	private static void spawnWanderingTrader(ServerLevel level, WanderingTrader source) {
+	private static boolean spawnWanderingTrader(ServerLevel level, BlockPos center, RandomSource random) {
+		if (isInDarkCave(level, center)) {
+			for (int attempt = 0; attempt < 40; attempt++) {
+				BlockPos spawnPosition = center.offset(
+						random.nextInt(17) - 8,
+						random.nextInt(9) - 4,
+						random.nextInt(17) - 8
+				);
+				BlockPos floorPosition = spawnPosition.below();
+				if (!isInDarkCave(level, spawnPosition)
+						|| !level.getBlockState(floorPosition)
+								.isFaceSturdy(level, floorPosition, Direction.UP)) {
+					continue;
+				}
+				if (spawnWanderingTraderAt(level, spawnPosition, random)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
 		for (int attempt = 0; attempt < 10; attempt++) {
-			BlockPos sourcePosition = source.blockPosition();
 			BlockPos spawnPosition = level.getHeightmapPos(
 					Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-					sourcePosition.offset(
-							source.getRandom().nextInt(17) - 8,
+					center.offset(
+							random.nextInt(17) - 8,
 							0,
-							source.getRandom().nextInt(17) - 8
+							random.nextInt(17) - 8
 					)
 			);
-			Entity spawnedEntity = source.getType().create(level, EntitySpawnReason.EVENT);
-			if (!(spawnedEntity instanceof WanderingTrader spawnedTrader)) {
-				return;
-			}
-
-			spawnedTrader.snapTo(
-					spawnPosition.getX() + 0.5,
-					spawnPosition.getY(),
-					spawnPosition.getZ() + 0.5,
-					source.getRandom().nextFloat() * 360.0f,
-					0.0f
-			);
-			if (!spawnedTrader.checkSpawnRules(level, EntitySpawnReason.EVENT)
-					|| !spawnedTrader.checkSpawnObstruction(level)
-					|| !level.noCollision(spawnedTrader)) {
-				continue;
-			}
-
-			spawnedTrader.finalizeSpawn(
-					level,
-					level.getCurrentDifficultyAt(spawnPosition),
-					EntitySpawnReason.EVENT,
-					null
-			);
-			if (level.addFreshEntity(spawnedTrader)) {
-				return;
+			if (spawnWanderingTraderAt(level, spawnPosition, random)) {
+				return true;
 			}
 		}
+		return false;
+	}
+
+	private static boolean spawnWanderingTraderAt(ServerLevel level, BlockPos position, RandomSource random) {
+		Entity spawnedEntity = BuiltInRegistries.ENTITY_TYPE
+				.getValue(Identifier.withDefaultNamespace("wandering_trader"))
+				.create(level, EntitySpawnReason.EVENT);
+		if (!(spawnedEntity instanceof WanderingTrader spawnedTrader)) {
+			return false;
+		}
+
+		spawnedTrader.snapTo(
+				position.getX() + 0.5,
+				position.getY(),
+				position.getZ() + 0.5,
+				random.nextFloat() * 360.0f,
+				0.0f
+		);
+		if (!spawnedTrader.checkSpawnRules(level, EntitySpawnReason.EVENT)
+				|| !spawnedTrader.checkSpawnObstruction(level)
+				|| !level.noCollision(spawnedTrader)) {
+			return false;
+		}
+
+		spawnedTrader.finalizeSpawn(
+				level,
+				level.getCurrentDifficultyAt(position),
+				EntitySpawnReason.EVENT,
+				null
+		);
+		return level.addFreshEntity(spawnedTrader);
 	}
 
 	/**
@@ -278,8 +379,10 @@ public final class CompramosMod implements ModInitializer {
 	 * @return {@code true} if the player's position meets the dark-cave conditions
 	 */
 	private static boolean isInDarkCave(ServerPlayer player) {
-		var level = player.level();
-		var position = player.blockPosition();
+		return isInDarkCave(player.level(), player.blockPosition());
+	}
+
+	private static boolean isInDarkCave(ServerLevel level, BlockPos position) {
 		return !level.canSeeSkyFromBelowWater(position)
 				&& level.getMaxLocalRawBrightness(position) <= 7;
 	}
@@ -318,6 +421,10 @@ public final class CompramosMod implements ModInitializer {
 				0.8f + player.getRandom().nextFloat() * 0.4f,
 				player.getRandom().nextLong()
 		));
+		if (CompramosConfig.traderSpawningEnabled
+				&& player.getRandom().nextInt(100) < CompramosConfig.traderSpawnChance) {
+			spawnWanderingTrader(player.level(), player.blockPosition(), player.getRandom());
+		}
 	}
 
 	/**

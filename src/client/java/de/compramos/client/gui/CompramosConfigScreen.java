@@ -60,7 +60,7 @@ public final class CompramosConfigScreen extends Screen {
 					CompramosConfig.save();
 				}));
 		addRenderableWidget(CycleButton.onOffBuilder(CompramosConfig.traderSpawningEnabled)
-				.create(x, y + rowHeight * 2, 300, 20, Component.literal("Spawn traders on Compramos sounds"), (button, enabled) -> {
+				.create(x, y + rowHeight * 2, 300, 20, Component.literal("Spawn traders after cave sounds"), (button, enabled) -> {
 					CompramosConfig.traderSpawningEnabled = enabled;
 					CompramosConfig.save();
 				}));
@@ -150,8 +150,8 @@ public final class CompramosConfigScreen extends Screen {
 	}
 
 	private static Component traderSpawnChanceLabel(int chance) {
-		return Component.literal("Trader spawn chance: " + chance + "% (about 1 in "
-				+ Math.round(100.0 / chance) + " sounds)");
+		return Component.literal("Cave trader spawn chance: " + chance + "% (about 1 in "
+				+ Math.round(100.0 / chance) + " cave sounds)");
 	}
 
 	/**

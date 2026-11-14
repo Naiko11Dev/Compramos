@@ -28,9 +28,9 @@ public final class CompramosConfig {
 	public static boolean traderSoundsEnabled = true;
 	/** Selects the wandering trader sound interval (0-2). */
 	public static int traderSoundFrequency = 0;
-	/** Enables a chance to spawn another wandering trader when one plays a sound. */
+	/** Enables a chance to spawn a wandering trader after cave ambience sounds. */
 	public static boolean traderSpawningEnabled = true;
-	/** Chance percentage to spawn a trader for each wandering trader sound. */
+	/** Chance percentage to spawn a trader for each cave ambience sound. */
 	public static int traderSpawnChance = 20;
 	/** Enables the Montoya sound when a wandering trader is discarded. */
 	public static boolean montoyaOnTraderDespawnEnabled = true;
