@@ -103,10 +103,17 @@ Minecraft sound assets use OGG Vorbis. The source audio files are kept in
 `src/main/resources/assets/compramos/`; registered OGG sound assets are stored
 in `src/main/resources/assets/compramos-by-naiko11/sounds/`.
 
+## Install on a client
+
+For a simpler client installation, Compramos will be available through
+Modrinth and CurseForge. Use a Fabric profile for the same Minecraft version
+as the server, and install Fabric API and Compramos. Install Mod Menu as well
+if you want to open the settings screen.
+
 ## Install on a server
 
-The server must run Fabric for the same Minecraft version as the mod. Install
-Java 25 or newer and Fabric API on both the server and each player's client.
+The server must run Fabric for the same Minecraft version as the mod. Use Java
+25 or newer and install Fabric API on the server.
 
 1. Stop the server and back up the world.
 2. Build the mod from the project directory:
@@ -115,12 +122,12 @@ Java 25 or newer and Fabric API on both the server and each player's client.
    .\gradlew.bat build
    ```
 
-3. Upload `build/libs/compramos-by-naiko11-0.2.1.jar` and a matching Fabric API
+3. Upload `build/libs/compramos-by-naiko11-1.0.0.jar` and a matching Fabric API
    JAR to the server's `mods` folder. Create the folder if it does not exist.
-4. Install the Compramos mod and Fabric API in each player's client `mods`
-   folder too, so clients have the sound assets. Install Mod Menu on clients if
-   they want to open the settings screen.
-5. Start the server and connect with clients running the same Minecraft version.
+4. Each player must also install Fabric API and Compramos on their client to
+   load the sound assets. See [Install on a client](#install-on-a-client).
+5. Start the server and connect with clients running Fabric for the same
+   Minecraft version.
 
 The Wandering Trader plays sounds through the server, which sends them to nearby
 players. A vanilla server cannot load this Fabric mod.
