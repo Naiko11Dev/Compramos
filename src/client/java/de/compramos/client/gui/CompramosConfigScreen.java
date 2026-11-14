@@ -22,6 +22,7 @@ public final class CompramosConfigScreen extends Screen {
 	private static final List<Integer> FREQUENCIES = List.of(0, 1, 2);
 	private final Screen parent;
 	private final float initialSoundVolume;
+	private final int initialTraderSpawnChance;
 
 	/**
 	 * Creates the settings screen and remembers the screen to return to.
@@ -32,6 +33,7 @@ public final class CompramosConfigScreen extends Screen {
 		super(Component.literal("Compramos Settings"));
 		this.parent = parent;
 		this.initialSoundVolume = CompramosConfig.soundVolume;
+		this.initialTraderSpawnChance = CompramosConfig.traderSpawnChance;
 	}
 
 	/**
@@ -40,8 +42,8 @@ public final class CompramosConfigScreen extends Screen {
 	@Override
 	protected void init() {
 		int x = width / 2 - 150;
-		int y = height / 2 - 114;
-		int rowHeight = 26;
+		int y = Math.max(0, height / 2 - 120);
+		int rowHeight = 22;
 
 		addRenderableWidget(CycleButton.onOffBuilder(CompramosConfig.traderSoundsEnabled)
 				.create(x, y, 300, 20, Component.literal("Wandering Trader sounds"), (button, enabled) -> {
@@ -57,18 +59,41 @@ public final class CompramosConfigScreen extends Screen {
 					CompramosConfig.traderSoundFrequency = value;
 					CompramosConfig.save();
 				}));
+		addRenderableWidget(CycleButton.onOffBuilder(CompramosConfig.traderSpawningEnabled)
+				.create(x, y + rowHeight * 2, 300, 20, Component.literal("Spawn traders on Compramos sounds"), (button, enabled) -> {
+					CompramosConfig.traderSpawningEnabled = enabled;
+					CompramosConfig.save();
+				}));
+		addRenderableWidget(new AbstractSliderButton(
+				x,
+				y + rowHeight * 3,
+				300,
+				20,
+				traderSpawnChanceLabel(CompramosConfig.traderSpawnChance),
+				(CompramosConfig.traderSpawnChance - 1) / 99.0
+		) {
+			@Override
+			protected void updateMessage() {
+				setMessage(traderSpawnChanceLabel(1 + (int) Math.round(value * 99)));
+			}
+
+			@Override
+			protected void applyValue() {
+				CompramosConfig.traderSpawnChance = 1 + (int) Math.round(value * 99);
+			}
+		});
 		addRenderableWidget(CycleButton.onOffBuilder(CompramosConfig.montoyaOnTraderDespawnEnabled)
-				.create(x, y + rowHeight * 2, 300, 20, Component.literal("Montoya on trader despawn"), (button, enabled) -> {
+				.create(x, y + rowHeight * 4, 300, 20, Component.literal("Montoya on trader despawn"), (button, enabled) -> {
 					CompramosConfig.montoyaOnTraderDespawnEnabled = enabled;
 					CompramosConfig.save();
 				}));
 		addRenderableWidget(CycleButton.onOffBuilder(CompramosConfig.terreneitorOnDonkeyMountEnabled)
-				.create(x, y + rowHeight * 3, 300, 20, Component.literal("Terreneitor when mounting a donkey"), (button, enabled) -> {
+				.create(x, y + rowHeight * 5, 300, 20, Component.literal("Terreneitor when mounting a donkey"), (button, enabled) -> {
 					CompramosConfig.terreneitorOnDonkeyMountEnabled = enabled;
 					CompramosConfig.save();
 				}));
 		addRenderableWidget(CycleButton.onOffBuilder(CompramosConfig.caveSoundsEnabled)
-				.create(x, y + rowHeight * 4, 300, 20, Component.literal("Cave ambience"), (button, enabled) -> {
+				.create(x, y + rowHeight * 6, 300, 20, Component.literal("Cave ambience"), (button, enabled) -> {
 					CompramosConfig.caveSoundsEnabled = enabled;
 					CompramosConfig.save();
 				}));
@@ -76,18 +101,18 @@ public final class CompramosConfigScreen extends Screen {
 						CompramosConfigScreen::caveFrequencyLabel,
 						CompramosConfig.caveSoundFrequency
 				).withValues(FREQUENCIES)
-				.create(x, y + rowHeight * 5, 300, 20, Component.literal("Cave sound frequency"), (button, value) -> {
+				.create(x, y + rowHeight * 7, 300, 20, Component.literal("Cave sound frequency"), (button, value) -> {
 					CompramosConfig.caveSoundFrequency = value;
 					CompramosConfig.save();
 				}));
 		addRenderableWidget(CycleButton.onOffBuilder(CompramosConfig.caveParticlesEnabled)
-				.create(x, y + rowHeight * 6, 300, 20, Component.literal("Cave particles"), (button, enabled) -> {
+				.create(x, y + rowHeight * 8, 300, 20, Component.literal("Cave particles"), (button, enabled) -> {
 					CompramosConfig.caveParticlesEnabled = enabled;
 					CompramosConfig.save();
 				}));
 		addRenderableWidget(new AbstractSliderButton(
 				x,
-				y + rowHeight * 7,
+				y + rowHeight * 9,
 				300,
 				20,
 				volumeLabel(CompramosConfig.soundVolume),
@@ -104,7 +129,7 @@ public final class CompramosConfigScreen extends Screen {
 			}
 		});
 		addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
-				.bounds(x, y + rowHeight * 8, 300, 20)
+				.bounds(x, y + rowHeight * 10, 300, 20)
 				.build());
 	}
 
@@ -113,7 +138,8 @@ public final class CompramosConfigScreen extends Screen {
 	 */
 	@Override
 	public void onClose() {
-		if (CompramosConfig.soundVolume != initialSoundVolume) {
+		if (CompramosConfig.soundVolume != initialSoundVolume
+				|| CompramosConfig.traderSpawnChance != initialTraderSpawnChance) {
 			CompramosConfig.save();
 		}
 		minecraft.setScreenAndShow(parent);
@@ -121,6 +147,11 @@ public final class CompramosConfigScreen extends Screen {
 
 	private static Component volumeLabel(double volume) {
 		return Component.literal("Compramos sound volume: " + Math.round(volume * 100) + "%");
+	}
+
+	private static Component traderSpawnChanceLabel(int chance) {
+		return Component.literal("Trader spawn chance: " + chance + "% (about 1 in "
+				+ Math.round(100.0 / chance) + " sounds)");
 	}
 
 	/**

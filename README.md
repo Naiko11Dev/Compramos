@@ -13,6 +13,7 @@ Author: Naiko11
 
 - Wandering Traders randomly play one of two Compramos sounds about every 60
   to 120 seconds.
+- Each trader sound has a 20% chance to spawn another Wandering Trader nearby.
 - A Montoya sound plays when a Wandering Trader despawns.
 - A Terreneitor sound plays when a player mounts a donkey.
 - Players in dark underground areas can hear quiet, random Compramos cave
@@ -74,10 +75,11 @@ brief, subtle burst of enchantment particles around that player.
 ## Settings
 
 Install Mod Menu to open Compramos' settings from its entry in the Mods menu.
-The settings let you toggle Wandering Trader sounds and cave ambience, choose
-their frequency, enable the Montoya and Terreneitor event sounds, toggle the
-cave particles, and adjust the volume of all Compramos sounds. Volume changes
-are saved when leaving the settings screen to
+The settings let you toggle Wandering Trader sounds, trader spawning, and cave
+ambience; choose the trader spawn chance and sound frequencies; enable the
+Montoya and Terreneitor event sounds; toggle cave particles; and adjust the
+volume of all Compramos sounds. Volume and spawn-chance changes are saved when
+leaving the settings screen to
 `config/compramos-by-naiko11.json`; other selections are saved immediately.
 
 In singleplayer, the integrated server uses the same settings. On a dedicated

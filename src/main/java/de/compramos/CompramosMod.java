@@ -12,19 +12,23 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permissions;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.animal.equine.Donkey;
-import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.levelgen.Heightmap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -176,6 +180,10 @@ public final class CompramosMod implements ModInitializer {
 							CompramosConfig.soundVolume,
 							1.0f
 					);
+					if (CompramosConfig.traderSpawningEnabled
+							&& trader.getRandom().nextInt(100) < CompramosConfig.traderSpawnChance) {
+						spawnWanderingTrader(world, trader);
+					}
 					scheduleNextSound(trader, world.getGameTime());
 				}
 			}
@@ -214,6 +222,53 @@ public final class CompramosMod implements ModInitializer {
 		int minInterval = MIN_SOUND_INTERVAL_TICKS * (1 << frequency);
 		int intervalVariation = SOUND_INTERVAL_VARIATION_TICKS * (1 << frequency);
 		return currentTick + minInterval + trader.getRandom().nextInt(intervalVariation);
+	}
+
+	/**
+	 * Tries to spawn a new wandering trader near the trader that played a sound.
+	 *
+	 * @param level the world in which to spawn the trader
+	 * @param source the trader whose sound triggered the spawn chance
+	 */
+	private static void spawnWanderingTrader(ServerLevel level, WanderingTrader source) {
+		for (int attempt = 0; attempt < 10; attempt++) {
+			BlockPos sourcePosition = source.blockPosition();
+			BlockPos spawnPosition = level.getHeightmapPos(
+					Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+					sourcePosition.offset(
+							source.getRandom().nextInt(17) - 8,
+							0,
+							source.getRandom().nextInt(17) - 8
+					)
+			);
+			Entity spawnedEntity = source.getType().create(level, EntitySpawnReason.EVENT);
+			if (!(spawnedEntity instanceof WanderingTrader spawnedTrader)) {
+				return;
+			}
+
+			spawnedTrader.snapTo(
+					spawnPosition.getX() + 0.5,
+					spawnPosition.getY(),
+					spawnPosition.getZ() + 0.5,
+					source.getRandom().nextFloat() * 360.0f,
+					0.0f
+			);
+			if (!spawnedTrader.checkSpawnRules(level, EntitySpawnReason.EVENT)
+					|| !spawnedTrader.checkSpawnObstruction(level)
+					|| !level.noCollision(spawnedTrader)) {
+				continue;
+			}
+
+			spawnedTrader.finalizeSpawn(
+					level,
+					level.getCurrentDifficultyAt(spawnPosition),
+					EntitySpawnReason.EVENT,
+					null
+			);
+			if (level.addFreshEntity(spawnedTrader)) {
+				return;
+			}
+		}
 	}
 
 	/**

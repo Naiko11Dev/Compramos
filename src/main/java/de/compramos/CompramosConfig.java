@@ -28,6 +28,10 @@ public final class CompramosConfig {
 	public static boolean traderSoundsEnabled = true;
 	/** Selects the wandering trader sound interval (0-2). */
 	public static int traderSoundFrequency = 0;
+	/** Enables a chance to spawn another wandering trader when one plays a sound. */
+	public static boolean traderSpawningEnabled = true;
+	/** Chance percentage to spawn a trader for each wandering trader sound. */
+	public static int traderSpawnChance = 20;
 	/** Enables the Montoya sound when a wandering trader is discarded. */
 	public static boolean montoyaOnTraderDespawnEnabled = true;
 	/** Enables the Terreneitor sound when a player mounts a donkey. */
@@ -62,6 +66,8 @@ public final class CompramosConfig {
 			// Invalid, missing, or out-of-range values fall back to the defaults below.
 			traderSoundsEnabled = getBoolean(config, "traderSoundsEnabled", true);
 			traderSoundFrequency = getFrequency(config, "traderSoundFrequency", 0, 2, 0);
+			traderSpawningEnabled = getBoolean(config, "traderSpawningEnabled", true);
+			traderSpawnChance = getFrequency(config, "traderSpawnChance", 1, 100, 20);
 			montoyaOnTraderDespawnEnabled = getBoolean(config, "montoyaOnTraderDespawnEnabled", true);
 			terreneitorOnDonkeyMountEnabled = getBoolean(config, "terreneitorOnDonkeyMountEnabled", true);
 			caveSoundsEnabled = getBoolean(config, "caveSoundsEnabled", true);
@@ -80,6 +86,8 @@ public final class CompramosConfig {
 		JsonObject config = new JsonObject();
 		config.addProperty("traderSoundsEnabled", traderSoundsEnabled);
 		config.addProperty("traderSoundFrequency", traderSoundFrequency);
+		config.addProperty("traderSpawningEnabled", traderSpawningEnabled);
+		config.addProperty("traderSpawnChance", traderSpawnChance);
 		config.addProperty("montoyaOnTraderDespawnEnabled", montoyaOnTraderDespawnEnabled);
 		config.addProperty("terreneitorOnDonkeyMountEnabled", terreneitorOnDonkeyMountEnabled);
 		config.addProperty("caveSoundsEnabled", caveSoundsEnabled);
