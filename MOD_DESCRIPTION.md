@@ -22,8 +22,7 @@ little more unpredictable. Bring a bit more fun into your minecraft world. Enjoy
 
 ## Installation
 
-Requires Minecraft Java Edition 26.3, Java 25 or newer, Fabric Loader 0.20.1
-or newer, and Fabric API for Minecraft 26.3.
+Requires Minecraft Java Edition, Java 25 or newer, Fabric Loader, and Fabric API for Minecraft 26.3.
 Mod Menu is optional and is only needed to open the in-game settings screen.
 
 ### Client
